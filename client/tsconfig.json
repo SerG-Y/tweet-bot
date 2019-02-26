@@ -19,6 +19,7 @@
       "components/*": [
         "src/components/*"
       ],
-    }
+    },
+    "plugins": [{"name": "typescript-tslint-plugin"}]
   }
 }

@@ -1,24 +1,29 @@
 import * as React from 'react';
-import { Button } from 'antd';
-import socketIOClient from 'socket.io-client';
+import * as io from 'socket.io-client';
+import {OAuth} from './OAuth';
 
-class App extends React.Component<{ API_URL: string }, {}> {
+export const API_URL = 'https://localhost:3000';
+const providers = ['twitter'];
+const socket = io(API_URL);
 
-    componentDidMount() {
-        // const socket = socketIOClient(this.props.API_URL);
+export class App extends React.Component<{}, {}> {
 
+    public componentDidMount() {
         // socket.on('tweet', tweet => {
         //     console.log(tweet);
         // });
     }
 
-    render() {
+    public render() {
         return (
             <div>
-                <Button type='primary'>Login</Button>
+                {providers.map((provider) =>
+                <OAuth
+                    provider={provider}
+                    key={provider}
+                    socket={socket}
+                />)}
             </div>
         );
     }
 }
-
-export default App;

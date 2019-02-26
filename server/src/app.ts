@@ -1,13 +1,25 @@
-import * as express from 'express';
-import * as http from 'http';
-import * as Twitter from 'node-tweet-stream';
-import * as socketIO from 'socket.io';
 import * as cors from 'cors';
+import * as express from 'express';
+import * as session from 'express-session';
+import * as fs from 'fs';
+import * as https from 'https';
+import * as Twitter from 'node-tweet-stream';
+import * as passport from 'passport';
+import * as path from 'path';
+import * as socketIO from 'socket.io';
+import passportInit from './lib/passportInit';
+import { OAuthRouter } from './routes/OAuthRouter';
 
+const certOptions = {
+    cert: fs.readFileSync(path.resolve('certs/server.crt')),
+    key: fs.readFileSync(path.resolve('certs/server.key'))
+};
 const PORT = process.env.PORT || 3000;
+const CLIENT_ORIGIN = 'https://localhost:8080';
 const app: express.Application = express();
-const server = http.createServer(app);
+const server = https.createServer(certOptions, app);
 const io = socketIO.listen(server);
+
 // const tw = Twitter({
 //     consumer_key: process.env.CONSUMER_KEY,
 //     consumer_secret: process.env.CONSUMER_SECRET,
@@ -15,15 +27,28 @@ const io = socketIO.listen(server);
 //     token_secret: process.env.TOKEN_SECRET
 // });
 
-app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
+app.use(express.json());
+app.use(passport.initialize());
+app.use(cors({ credentials: true, origin: CLIENT_ORIGIN }));
 
-io.on('connection', socket => {
-    console.log('User connected')
+passportInit();
+
+app.use(session({
+    resave: true,
+    saveUninitialized: true,
+    secret: 'dfkCf3ckF0ckdFn5vLf' // process.env.SESSION_SECRET,
+}));
+
+app.set('io', io);
+app.use('/', OAuthRouter);
+
+io.on('connection', (socket) => {
+    console.log('User connected');
 
     socket.on('disconnect', () => {
-        console.log('user disconnected')
-    })
-})
+        console.log('user disconnected');
+    });
+});
 
 // tw.track('socket.io');
 // tw.track('javascript');
