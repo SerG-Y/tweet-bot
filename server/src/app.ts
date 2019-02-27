@@ -3,29 +3,29 @@ import * as express from 'express';
 import * as session from 'express-session';
 import * as fs from 'fs';
 import * as https from 'https';
-import * as Twitter from 'node-tweet-stream';
+import * as mongoose from 'mongoose';
 import * as passport from 'passport';
 import * as path from 'path';
 import * as socketIO from 'socket.io';
 import passportInit from './lib/passportInit';
+import {TweetController} from './lib/TweetController';
 import { OAuthRouter } from './routes/OAuthRouter';
 
 const certOptions = {
     cert: fs.readFileSync(path.resolve('certs/server.crt')),
     key: fs.readFileSync(path.resolve('certs/server.key'))
 };
-const PORT = process.env.PORT || 3000;
 const CLIENT_ORIGIN = 'https://localhost:8080';
 const app: express.Application = express();
 const server = https.createServer(certOptions, app);
 const io = socketIO.listen(server);
+const tw = new TweetController(io);
 
-// const tw = Twitter({
-//     consumer_key: process.env.CONSUMER_KEY,
-//     consumer_secret: process.env.CONSUMER_SECRET,
-//     token: process.env.TOKEN,
-//     token_secret: process.env.TOKEN_SECRET
-// });
+mongoose.connect('mongodb://serg:sergfest1996@ds241664.mlab.com:41664/tweet-bot', (err) => {
+    if (!err) {
+        console.log('connected to db');
+    }
+});
 
 app.use(express.json());
 app.use(passport.initialize());
@@ -40,32 +40,31 @@ app.use(session({
 }));
 
 app.set('io', io);
+app.set('tw', tw);
 app.use('/', OAuthRouter);
 
 io.on('connection', (socket) => {
-    console.log('User connected');
+    console.log(`User ${socket.id} connected`);
 
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        tw.removeUser(socket.id);
+        console.log(`User ${socket.id} disconnected`);
+    });
+
+    socket.on('addKeyword', (keyword: string) => {
+        tw.addKeyword(socket.id, keyword);
+    });
+
+    socket.on('removeKeyword', (keyword: string) => {
+        tw.removeKeyword(socket.id, keyword);
     });
 });
-
-// tw.track('socket.io');
-// tw.track('javascript');
-// tw.on('tweet', (tweet) => {
-//     io.emit('tweet', {
-//         text: tweet.text,
-//         name: tweet.user.name,
-//         created_at: tweet.created_at
-//     });
-
-//     console.log(tweet.text);
-// });
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT} !`);
 });

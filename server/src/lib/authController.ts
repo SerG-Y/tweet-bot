@@ -1,9 +1,34 @@
+import User from '../models/User';
+
 export const twitter = (req, res) => {
     const io = req.app.get('io');
-    const user = {
+    const userData = {
         name: req.user.username,
         photo: req.user.photos[0].value.replace(/_normal/, '')
     };
 
-    io.in(req.session.socketId).emit('twitter', user);
+    User.findOne({ userId: req.user.id }, (err, user: any) => {
+        if (err) {
+            console.error(err);
+        }
+
+        if (!user) {
+            const { id } = req.user;
+
+            User.create({ userId: id, keywords: [] }, (err, user) => {
+                if (err) {
+                    console.error(err);
+                }
+
+                req.session.keywords = user.keywords;
+                req.app.get('tw').addUser(user.userId, req.session.socketId, user.keywords);
+                io.in(req.session.socketId).emit('twitter', userData);
+            });
+        } else {
+            req.session.keywords = user.keywords;
+            req.app.get('tw').addUser(user.userId, req.session.socketId, user.keywords);
+            io.in(req.session.socketId).emit('twitter', userData);
+        }
+    });
+
 };
