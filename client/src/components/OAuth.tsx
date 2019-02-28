@@ -1,70 +1,83 @@
-import { Button } from 'antd';
+import { Button, Icon } from 'antd';
 import * as React from 'react';
-import { API_URL } from './App';
+import { Redirect } from 'react-router-dom';
+import { API_URL } from '../index';
+import { IUser } from './App';
 
 export interface IOAuthProps {
     socket: SocketIOClient.Socket;
     provider: string;
+    setUser: (user: IUser) => void;
+    setKeywords: (keywords: string[]) => void;
 }
 
 export interface IOAuthState {
-    user: any;
     disabled: boolean;
 }
 
 export class OAuth extends React.Component<IOAuthProps, IOAuthState> {
 
     private popup: Window;
+    private check: number;
 
     constructor(props: IOAuthProps) {
         super(props);
 
         this.state = {
-            disabled: false,
-            user: {}
+            disabled: false
         };
     }
 
-    public componentDidMount() {
+    public componentDidMount(): void {
         const { socket, provider } = this.props;
 
-        socket.on(provider, (user) => {
+        socket.once(provider, (user) => {
+            const userData = { name: user.name, photo: user.photo };
+
             this.popup.close();
-            this.setState({ user });
+            this.props.setUser(userData);
+            this.props.setKeywords(user.keywords);
         });
     }
 
+    public componentWillUnmount(): void {
+        clearInterval(this.check);
+        this.props.socket.removeListener(this.props.provider);
+    }
+
     public render() {
-        const { name, photo } = this.state.user;
-        const { provider } = this.props;
         const { disabled } = this.state;
 
         return (
-            <div>
-                {name ?
+            <div style={{ height: '100%' }}>
+                <div style={{ alignItems: 'center', display: 'flex', justifyContent: 'center', height: '100%' }}>
                     <div>
-                        <Button icon='close-circle' disabled={disabled} onClick={this.closeCard.bind(this)} />
-                        <img src={photo} alt={name} />
-                        <h4>{name}</h4>
-                    </div> :
-                    <Button type='primary' icon='twitter' disabled={disabled} onClick={this.startAuth.bind(this)}>
-                        Login
-                    </Button>
-                }
+                        <Button
+                            style={{ width: '100px', height: '100px' }}
+                            size='large'
+                            type='primary'
+                            shape='circle'
+                            disabled={disabled}
+                            onClick={this.startAuth.bind(this)}
+                        >
+                            <Icon type='twitter' style={{ fontSize: '50px' }} />
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
 
-    private checkPopup() {
-        const check = setInterval(() => {
+    private checkPopup(): void {
+        this.check = setInterval(() => {
             if (!this.popup || this.popup.closed || this.popup.closed === undefined) {
-                clearInterval(check);
+                clearInterval(this.check);
                 this.setState({ disabled: false });
             }
         }, 1000);
     }
 
-    private openPopup() {
+    private openPopup(): Window {
         const { provider, socket } = this.props;
         const width = 600;
         const height = 600;
@@ -79,16 +92,12 @@ export class OAuth extends React.Component<IOAuthProps, IOAuthState> {
         );
     }
 
-    private startAuth(e) {
+    private startAuth(e): void {
         if (!this.state.disabled) {
             e.preventDefault();
             this.popup = this.openPopup();
             this.checkPopup();
             this.setState({ disabled: true });
         }
-    }
-
-    private closeCard() {
-        this.setState({ user: {} });
     }
 }

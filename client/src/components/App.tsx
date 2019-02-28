@@ -1,29 +1,107 @@
 import * as React from 'react';
-import * as io from 'socket.io-client';
-import {OAuth} from './OAuth';
+import { connect } from 'react-redux';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import actions from '../redux/actions';
+import { Feeds } from './Feeds';
+import { Login } from './Login';
+import { Settings } from './Settings';
 
-export const API_URL = 'https://localhost:3000';
-const providers = ['twitter'];
-const socket = io(API_URL);
+export interface IUser {
+    name?: string;
+    photo?: string;
+}
 
-export class App extends React.Component<{}, {}> {
+class App extends React.Component<any, {}> {
 
-    public componentDidMount() {
-        // socket.on('tweet', tweet => {
-        //     console.log(tweet);
-        // });
+    public isAuthenticated(): boolean {
+        return this.props.user.name !== undefined;
     }
 
     public render() {
+        const props = this.props;
+
         return (
-            <div>
-                {providers.map((provider) =>
-                <OAuth
-                    provider={provider}
-                    key={provider}
-                    socket={socket}
-                />)}
-            </div>
+            <Switch>
+                <Route
+                    exact={true}
+                    path='/'
+                    render={(routeProps) => (
+                        this.isAuthenticated() ? <Redirect to='/feeds' /> :
+                        <Login
+                            {...routeProps}
+                            {...{
+                                providers: props.providers,
+                                setKeywords: props.actions.setKeywords,
+                                setUser: props.actions.setUser,
+                                socket: props.socket
+                            }}
+                        />)}
+                />
+                <Route
+                    path='/feeds'
+                    render={(routeProps) => (
+                        this.isAuthenticated() ? (
+                            <Feeds
+                                {...routeProps}
+                                {...{
+                                    addTweet: props.actions.addTweet,
+                                    setUser: props.actions.setUser,
+                                    socket: props.socket,
+                                    tweets: props.tweets,
+                                    user: props.user
+                                }}
+                            />)
+                            : (<Login
+                                {...routeProps}
+                                {...{
+                                    providers: props.providers,
+                                    setKeywords: props.actions.setKeywords,
+                                    setUser: props.actions.setUser,
+                                    socket: props.socket
+                                }}
+                            />)
+                    )}
+                />
+                <Route
+                    path='/settings'
+                    render={(routeProps) => (
+                        this.isAuthenticated() ? (
+                            <Settings
+                                {...routeProps}
+                                {...{
+                                    addKeyword: props.actions.addKeyword,
+                                    keywords: props.keywords,
+                                    removeKeyword: props.actions.removeKeyword,
+                                    setUser: props.actions.setUser,
+                                    socket: props.socket,
+                                    user: props.user
+                                }}
+                            />)
+                            : (<Login
+                                {...routeProps}
+                                {...{
+                                    providers: props.providers,
+                                    setKeywords: props.actions.setKeywords,
+                                    setUser: props.actions.setUser,
+                                    socket: props.socket
+                                }}
+                            />)
+                    )}
+                />
+            </Switch>
         );
     }
 }
+
+function mapStateToProps(state) {
+    return state;
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(actions, dispatch)
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

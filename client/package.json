@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --https --key ./server.key --cert ./server.crt --cacert ./rootCA.pem --mode development --open --hot",
+    "start": "webpack-dev-server --https --key ./certs/server.key --cert ./certs/server.crt --mode development --open --hot",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +19,8 @@
     "@babel/preset-typescript": "^7.3.3",
     "@types/react": "^16.8.4",
     "@types/react-dom": "^16.8.2",
+    "@types/react-redux": "^7.0.1",
+    "@types/react-router-dom": "^4.3.1",
     "@types/socket.io-client": "^1.4.32",
     "babel-loader": "^8.0.5",
     "babel-plugin-import": "^1.11.0",
@@ -37,6 +39,9 @@
     "antd": "^3.13.6",
     "react": "^16.8.3",
     "react-dom": "^16.8.3",
+    "react-redux": "^6.0.1",
+    "react-router-dom": "^4.3.1",
+    "redux": "^4.0.1",
     "socket.io-client": "^2.2.0"
   }
 }

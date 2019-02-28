@@ -5,6 +5,7 @@
         "quotemark": [true, "single", "jsx-single"],
         "trailing-comma": [false],
         "jsx-no-multiline-js": [false],
-        "jsx-no-bind": [false]
+        "jsx-no-bind": [false],
+        "jsx-no-lambda": false
     }
 }
