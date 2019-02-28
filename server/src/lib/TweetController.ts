@@ -23,7 +23,11 @@ export class TweetController {
     }
 
     public addUser(userId: string, socketId: string, keywords: [string]): void {
-        this.users[socketId] = {
+        if (this.users.hasOwnProperty(socketId)) {
+            return;
+        }
+
+        this.users[`${socketId}`] = {
             keywords,
             userId
         };
@@ -78,16 +82,18 @@ export class TweetController {
 
     private listenTweets(): void {
         this.tw.on('tweet', (tweet) => {
+            const tweetData = {
+                created_at: tweet.created_at,
+                name: tweet.user.name,
+                text: tweet.text,
+                userPhoto: tweet.user.profile_image_url_https
+            };
+
             for (const keyword of this.keywords) {
                 if (tweet.text.includes(keyword)) {
                     for (const id in this.users) {
                         if (this.users[id].keywords.includes(keyword)) {
-                            this.io.in(id).emit('tweet', {
-                                created_at: tweet.created_at,
-                                keyword,
-                                name: tweet.user.name,
-                                text: tweet.text
-                            });
+                            this.io.in(id).emit('tweet', tweetData);
                         }
                     }
                 }

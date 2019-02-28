@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "dev": "CONSUMER_KEY=bOaF7Hno20VziCrwbRVZv6uPg CONSUMER_SECRET=X27biR6X65Oh1VBgNbV2OZD565LJdRL7YQJbBhuO5l1IMqewP1 TOKEN=2400009216-TRVQUwSxWerq1MpvTgnE7mI2T03f5ExA2Xae3yJ TOKEN_SECRET=jHevHrdSboILmh1t8A0WrJfivg1xIEky3ntSoQf9KUKvu ts-node-dev --respawn --transpileOnly ./src/app.ts",
+    "dev": "ts-node-dev --respawn --transpileOnly ./src/app.ts",
     "prod": "tsc && node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

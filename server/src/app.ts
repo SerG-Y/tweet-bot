@@ -21,7 +21,7 @@ const server = https.createServer(certOptions, app);
 const io = socketIO.listen(server);
 const tw = new TweetController(io);
 
-mongoose.connect('mongodb://serg:sergfest1996@ds241664.mlab.com:41664/tweet-bot', (err) => {
+mongoose.connect(process.env.MONGO_URL, (err) => {
     if (!err) {
         console.log('connected to db');
     }
@@ -36,7 +36,7 @@ passportInit();
 app.use(session({
     resave: true,
     saveUninitialized: true,
-    secret: 'dfkCf3ckF0ckdFn5vLf' // process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET,
 }));
 
 app.set('io', io);
@@ -52,11 +52,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('addKeyword', (keyword: string) => {
-        tw.addKeyword(socket.id, keyword);
+        tw.addKeyword(socket.id.toString(), keyword);
     });
 
     socket.on('removeKeyword', (keyword: string) => {
-        tw.removeKeyword(socket.id, keyword);
+        tw.removeKeyword(socket.id.toString(), keyword);
     });
 });
 
