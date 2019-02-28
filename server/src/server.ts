@@ -15,7 +15,7 @@ const certOptions = {
     cert: fs.readFileSync(path.resolve('certs/server.crt')),
     key: fs.readFileSync(path.resolve('certs/server.key'))
 };
-const CLIENT_ORIGIN = 'https://localhost:8080';
+const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN;
 const app: express.Application = express();
 const server = https.createServer(certOptions, app);
 const io = socketIO.listen(server);

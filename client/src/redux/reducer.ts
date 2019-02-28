@@ -17,12 +17,8 @@ const reducer = (state, action) => {
 
                 return {...state, keywords: newKeywords};
 
-        case 'ADD_TWEET':
-            // let newItems = [{ name: action.tweet.name, text: action.tweet.text }, ...state.tweets];
-
-            // newItems = newItems.length > 15 ? newItems.slice(0, 15) : newItems;
-
-            return {...state, tweets: action.tweet};
+        case 'SET_TWEETS':
+            return {...state, tweets: action.tweets};
 
         default:
             return state;

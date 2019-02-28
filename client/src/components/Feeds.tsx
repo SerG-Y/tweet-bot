@@ -4,7 +4,7 @@ import { IUser } from './App';
 import { Header } from './Header';
 
 export interface IFeedsProps {
-    addTweet: (tweet) => void;
+    setTweets: (tweet) => void;
     setUser: (user: IUser) => void;
     socket: SocketIOClient.Socket;
     user: IUser;
@@ -32,7 +32,7 @@ export class Feeds extends React.Component<IFeedsProps, {tweets: ITweet[]}> {
 
             newItems = newItems.length > 15 ? newItems.slice(0, 15) : newItems;
             this.setState({tweets: newItems});
-            this.props.addTweet(newItems);
+            this.props.setTweets(newItems);
         });
     }
 

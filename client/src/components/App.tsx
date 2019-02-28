@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import actions from '../redux/actions';
-import { Feeds } from './Feeds';
+import { Feeds, ITweet } from './Feeds';
 import { Login } from './Login';
 import { Settings } from './Settings';
 
@@ -12,7 +12,16 @@ export interface IUser {
     photo?: string;
 }
 
-class App extends React.Component<any, {}> {
+export interface IAppProps {
+    keywords?: string[];
+    providers?: string[];
+    tweets?: ITweet[];
+    socket: SocketIOClient.Socket;
+    user?: IUser;
+    actions?: any;
+}
+
+class App extends React.Component<IAppProps, {}> {
 
     public isAuthenticated(): boolean {
         return this.props.user.name !== undefined;
@@ -45,7 +54,7 @@ class App extends React.Component<any, {}> {
                             <Feeds
                                 {...routeProps}
                                 {...{
-                                    addTweet: props.actions.addTweet,
+                                    setTweets: props.actions.setTweets,
                                     setUser: props.actions.setUser,
                                     socket: props.socket,
                                     tweets: props.tweets,

@@ -1,6 +1,5 @@
 import { Button, Icon } from 'antd';
 import * as React from 'react';
-import { Redirect } from 'react-router-dom';
 import { API_URL } from '../index';
 import { IUser } from './App';
 

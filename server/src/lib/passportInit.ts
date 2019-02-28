@@ -10,7 +10,7 @@ export default () => {
     };
 
     passport.use(new passportTwitter.Strategy({
-        callbackURL: 'https://localhost:3000/twitter/callback',
+        callbackURL: process.env.TWITTER_CALLBACK_URL,
         consumerKey: process.env.CONSUMER_KEY,
         consumerSecret: process.env.CONSUMER_SECRET,
     }, callback));

@@ -27,10 +27,10 @@ const actions = {
         };
     },
 
-    addTweet: (tweet) => {
+    setTweets: (tweets) => {
         return {
-            type: 'ADD_TWEET',
-            tweet
+            type: 'SET_TWEETS',
+            tweets
         };
     }
 };
