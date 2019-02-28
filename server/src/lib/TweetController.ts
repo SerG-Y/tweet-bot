@@ -34,8 +34,10 @@ export class TweetController {
 
         for (const keyword of keywords) {
             this.keywords.push(keyword);
-            this.tw.track(keyword, true);
+            this.tw.track(keyword);
         }
+
+        this.tw.reconnect();
     }
 
     public removeUser(socketId: string): void {
@@ -44,10 +46,16 @@ export class TweetController {
         }
 
         for (const keyword of this.users[socketId].keywords) {
-            this.tw.untrack(keyword, true);
+            this.tw.untrack(keyword);
         }
 
         delete this.users[socketId];
+
+        if (Object.keys(this.users).length === 0) {
+            this.tw.untrackAll();
+        }
+
+        this.tw.reconnect();
     }
 
     public addKeyword(socketId: string, keyword: string): void {
@@ -59,7 +67,7 @@ export class TweetController {
 
                 this.users[socketId].keywords.push(keyword);
                 this.keywords.push(keyword);
-                this.tw.track(keyword, true);
+                this.tw.track(keyword);
             });
     }
 
@@ -76,7 +84,7 @@ export class TweetController {
                 this.keywords.splice(indexKeyword, 1);
                 this.users[socketId].keywords.splice(indexUserKeyword, 1);
 
-                this.tw.untrack(keyword, true);
+                this.tw.untrack(keyword);
             });
     }
 
